@@ -1,0 +1,24 @@
+<div>
+    <h1 class="page-header">Online Players <small>there are {{ players.length }} online</small></h1>
+
+    <table class="table table-striped" ng-show="players.length">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Vocation</th>
+                <th>Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="player in players">
+                <td><a href ng-href="/players/{{ player.name }}">{{ player.name }}</a></td>
+                <td>{{ vocation(player.vocation).name }}</td>
+                <td>{{ player.level }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p ng-show="!players.length">
+        Nobody is online right now.
+    </p>
+</div>

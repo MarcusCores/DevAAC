@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="DevAAC">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="developers.pl">
+    <title>DevAAC</title>
+    <base href="/">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+    <style type="text/css">
+        body {
+            margin-top: 70px;
+            background-color: #333;
+            /*
+                Lava background (240 KB): //i.imgur.com/4XIP7Ak.jpg
+                Grass background (230 KB): //i.imgur.com/d9HCIzB.jpg
+            */
+            background-image: url(//i.imgur.com/d9HCIzB.jpg);
+        }
+        .page-header {
+            margin-top: 0;
+        }
+        .table-complex th {
+            text-align: center;
+        }
+        .navbar-brand {
+            color: #fff !important;
+        }
+        footer {
+            margin: 50px 0;
+        }
+        /* Angular UI */
+        .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
+    </style>
+    <!-- AngularJS -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-route.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-resource.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular-sanitize.js"></script>
+    <!-- jQuery -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <!-- Bootstrap UI -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.12.0/ui-bootstrap-tpls.min.js"></script>
+    <!-- Moment.js -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.7.0/moment.min.js"></script>
+    <!-- Underscore.js -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <!-- Showdown -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+    <!-- jsSHA -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jsSHA/1.5.0/sha1.js"></script>
+</head>
+<body ng-controller="MainController" ng-cloak>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div ng-controller="HeaderController" class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a ng-show="name" class="navbar-brand ng-hidden" ng-href="/">{{ name }}</a>
+                <a ng-hide="name" class="navbar-brand" ng-href="/">DevAAC</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div ng-controller="NavigationController" class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                    <li ng-class="{active:isActive('/about')}"><a href ng-href="/about"><i class="glyphicon glyphicon-question-sign"></i> About</a></li>
+                    <li ng-class="{active:isActive('/players/online')}"><a href ng-href="/players/online"><i class="glyphicon glyphicon-eye-open"></i> Who is online?</a></li>
+                    <li ng-class="{active:isActive('/highscores')}"><a href ng-href="/highscores"><i class="glyphicon glyphicon-stats"></i> Highscores</a></li>
+                    <li ng-class="{active:isActive('/guilds')}"><a href="javascript://" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="glyphicon glyphicon-link"></i> Guilds</a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href ng-href="/guilds">Guilds List</a></li>
+                            <li><a href ng-href="/guilds/wars">Guilds Wars</a></li>
+                        </ul>
+                    </li>
+                    <li ng-class="{active:isActive('/houses')}"><a href ng-href="/houses"><i class="glyphicon glyphicon-home"></i> Houses</a></li>
+                </ul>
+                <ul ng-if="isLoggedIn()" class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown">Welcome {{account.name}}!<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href ng-href="/account"><i class="glyphicon glyphicon-cog"></i> My account</a></li>
+                            <li class="divider"></li>
+                            <li><a ng-click="Logout()" href="javascript://">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form ng-if="!isLoggedIn()" ng-submit="Login()" class="navbar-form navbar-right">
+                    <div class="form-group">
+                        <input ng-model="form.name" class="form-control" placeholder="Account name" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <input ng-model="form.password" class="form-control" placeholder="Password" type="password" required>
+                    </div>
+                    <div class="btn-group">
+                        <button type="submit" id="loading-login-btn" data-loading-text="Logging in..." class="btn btn-success">Log in</button>
+                        <button type="button" class="btn btn-success" data-toggle="dropdown">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href ng-href="/account/register">Register</a></li>
+                            <li class="divider"></li>
+                            <li><a data-toggle="modal" data-target="#lostModal" href="javascript://">Lost password?</a></li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Lost password modal -->
+    <div ng-if="!isLoggedIn()" class="modal fade" id="lostModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Lost your account name or password?</h4>
+                </div>
+                <form role="form" ng-submit="lostPassword()">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="inputEmail">Email address</label>
+                            <input type="email" class="form-control" id="inputEmail" placeholder="Enter your email" required>
+                        </div>
+                        <p id="recoverResponse" class="hidden"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" id="loading-lostpw-btn" data-loading-text="Sending..." class="btn btn-success">Send account name and new password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-12" ng-show="loadingView">
+                <div class="progress progress-striped active">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%;">
+                        L O A D I N G
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-9 well well-lg" id="view" ng-view></div>
+            
+            <div class="col-sm-3" ng-controller="WidgetController">
+                <div class="well well-sm">
+                    <a href ng-href="/players/online"><h3 class="text-center"><i class="glyphicon glyphicon-user"></i> {{info.players_online_count}} / {{info.maxPlayers}} online</h3></a>
+                </div>
+
+                <div ng-show="highExperience.length">
+                    <form ng-submit="goToPlayer()">
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i ng-hide="searchLoading" class="glyphicon glyphicon-hand-right"></i>
+                                <i ng-show="searchLoading" class="glyphicon glyphicon-refresh"></i>
+                            </div>
+                            <input type="text" class="form-control" ng-model="search" required placeholder="Find Player..."
+                                   typeahead="player.name for player in findPlayers($viewValue)" typeahead-on-select="goToPlayer($label)" typeahead-loading="searchLoading">
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-default" type="button">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </form>
+                    <br />
+                    <div ng-if="searchError" class="alert alert-danger alert-dismissable">{{searchError}}</div>
+                </div>
+
+                <div ng-show="highExperience.length" class="well well-sm">
+                    <h4 class="text-center">Top 5 players by level</h4>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table table-striped table-responsive">
+                                <thead>
+                                    <th>Name</th>
+                                    <th>Level</th>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="player in highExperience">
+                                        <td>{{$index+1}}. <a href ng-href="/players/{{player.name}}">{{player.name}}</a></td>
+                                        <td><span class="label label-primary">{{player.level}}</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="well well-sm">
+                    <h4 class="text-center">Server Information</h4>
+                    <div ng-show="!info.$resolved">
+                        <h2>Loading...</h2>
+                    </div>
+                    <div ng-if="info.ip">
+                        <table class="table table-striped table-responsive">
+                            <tr><td>IP</td><td>{{info.ip}}</td></tr>
+                            <tr><td>Port</td><td>{{info.loginProtocolPort}}</td></tr>
+                            <tr><td>World Type:</td><td>{{info.worldType | uppercase}}</td></tr>
+                            <tr><td colspan="2" class="text-center"><a class="btn btn-success" href="http://static.otland.net/ipchanger.exe"><i class="glyphicon glyphicon-download-alt"></i> Download IP Changer</a></td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer ng-controller="FooterController">
+            <div class="row">
+                <div class="col-sm-12 well well-sm">
+                    <p>{{ info.serverName }} <span ng-if="info.ownerName">by <a href="{{info.url}}">{{ info.ownerName }}</a></span> | <a href="https://github.com/TheDevOne/DevAAC" target="_blank">DevAAC</a> &copy; {{ year }} by developers.pl</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <!-- /.container -->
+
+    <!-- DevAAC core -->
+    <script src="/DevAAC.js"></script>
+    <!-- Modules (components) -->
+    <script src="/modules/main/main.js"></script>
+    <script src="/modules/news/news.js"></script>
+    <script src="/modules/account/account.js"></script>
+    <script src="/modules/highscores/highscores.js"></script>
+    <script src="/modules/guilds/wars.js"></script>
+    <script src="/modules/guilds/guilds.js"></script>
+    <script src="/modules/houses/houses.js"></script>
+    <script src="/modules/players/players.js"></script>
+    <script src="/modules/about/about.js"></script>
+    <script src="/modules/404/404.js"></script>
+    <script src="/modules/server/server.js"></script>
+</body>
+</html>

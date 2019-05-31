@@ -1,0 +1,79 @@
+<h1 class="page-header">Your account</h1>
+<p>
+    <b>Email:</b> {{account.email}}<br>
+    <b>Premium account: </b> {{(account.premdays > 0) ? 'Yes' : 'No'}}
+</p>
+
+<hr>
+
+<div ng-if="errorMessage || successMessage">
+    <div ng-if="errorMessage" class="alert alert-danger">{{errorMessage}}</div>
+    <div ng-if="successMessage" class="alert alert-success">{{successMessage}}</div>
+</div>
+
+<!-- creating player -->
+<div ng-show="creatingPlayer">
+    <h2>Create player:</h2>
+    <form ng-submit="createPlayer()">
+        <div class="form-group">
+            <label>Player name</label>
+            <input type="text" class="form-control" ng-model="newPlayer.name" required placeholder="Enter player name">
+        </div>
+        <div class="form-group">
+            <label>Vocation</label>
+            <select class="form-control" ng-model="newPlayer.vocation" ng-options="v.id as v.name for v in available_vocations" required>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Gender</label>
+            <select class="form-control" ng-model="newPlayer.sex" required>
+                <option value="0">Female (girl)</option>
+                <option value="1">Male (boy)</option>
+            </select>
+        </div>
+        <button type="submit" id="loading-register-btn" data-loading-text="Creating player..." class="btn btn-info">Create</button>
+        <button type="button" class="btn btn-default" ng-click="creatingPlayer = 0" class="display:block; float:right;">Close</button>
+    </form>
+    <hr>
+</div>
+
+<!-- changing password -->
+<div ng-show="changingPassword">
+    <h2>Change password:</h2>
+    <form class="form-horizontal" ng-submit="changePassword()">
+        <div class="form-group col-sm-6">
+            <label>New Password</label>
+            <input type="password" class="form-control" ng-model="pwd.password" required placeholder="New Password">
+        </div>
+        <div class="form-group col-sm-6">
+            <label>Confirm New Password</label>
+            <input type="password" class="form-control" ng-model="pwd.passwordAgain" required placeholder="Confirm New Password">
+        </div>
+        <button type="submit" id="change-password-btn" data-loading-text="Changing password..." class="btn btn-warning">Change password</button>
+        <button type="button" class="btn btn-default" ng-click="changingPassword = false" class="display:block; float:right;">Close</button>
+    </form>
+    <hr>
+</div>
+
+<button ng-show="!creatingPlayer" class="btn btn-info" ng-click="creatingPlayer = true">Create player</button>
+<button ng-show="!changingPassword" class="btn btn-info" ng-click="changingPassword = true">Change Password</button>
+
+<h2>Player list</h2>
+<table class="table table-striped">
+    <thead>
+        <th>Name</th>
+        <th>Vocation</th>
+        <th>Level</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr ng-repeat="player in players">
+            <td><a href ng-href="/players/{{ player.id }}">{{ player.name }}</a></td>
+            <td>{{ vocation(player.vocation).name }}</td>
+            <td>{{ player.level }}</td>
+            <td><a ng-click="remove(player.id)" type="button" class="btn btn-danger" ng-confirm-click="Are you sure you want to PERMANENTLY delete {{player.name}}?">
+                <i class="glyphicon glyphicon-remove"></i> Delete</a>
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -1,0 +1,114 @@
+<h1 class="page-header">About this server</h1>
+
+<h2><i class="glyphicon glyphicon-book"></i> Server rules</h2>
+<p>By creating or using an account, you agree with terms and conditions below.</p>
+<p>No <a href='http://en.wikipedia.org/wiki/Cheating' target="_blank">cheating</a> allowed.</p>
+<p>No <a href='http://en.wikipedia.org/wiki/Internet_bot' target="_blank">botting</a> allowed.</p>
+<p>The staff reserve rights to modify, remove or discontinue services without further notice.</p>
+<p>You agree to use our services at your sole risk. We disclaim all warranties or conditions of any kind.</p>
+<p>By accepting these rules you allow us to use your submitted information (including logging your IP and sharing personal information with authorities).</p>
+<p>We provide services "as is". We are not liable for any lost profits or damages arising out of using our services.</p>
+<p>This website uses cookies to let you register and manage your account. You may disable them in your browser settings.</p>
+
+<h2><i class="glyphicon glyphicon-stats"></i> Statistics</h2>
+<table class="table table-striped">
+    <tr><td>Players Online</td><td>{{info.players_online_count}}</td></tr>
+    <tr><td>Record of Players Online</td><td>{{(config | filter: {config: 'players_record'})[0].value}}</td></tr>
+    <tr><td># of Players</td><td>{{info.players_count}}</td></tr>
+    <tr><td># of Accounts</td><td>{{info.accounts_count}}</td></tr>
+    <tr><td># of Players per Account</td><td>{{info.players_count / info.accounts_count | number: 2}}</td></tr>
+    <tr><td># of Guilds</td><td>{{info.guilds_count}}</td></tr>
+    <tr><td># of Players per Guild</td><td>{{info.players_count / info.guilds_count | number: 2}}</td></tr>
+    <tr><td># of Houses</td><td>{{info.houses_count}}</td></tr>
+    <tr><td># of Players per House</td><td>{{info.players_count / info.houses_count | number: 2}}</td></tr>
+    <tr><td># of MOTDs</td><td>{{(config | filter: {config: 'motd_num'})[0].value}}</td></tr>
+</table>
+
+<h2><i class="glyphicon glyphicon-info-sign"></i> Extended server information</h2>
+<table class="table table-striped">
+    <tr><td>Server Name</td><td>{{info.serverName}}</td></tr>
+    <tr><td>IP</td><td>{{info.ip}}</td></tr>
+    <tr><td>Port</td><td>{{info.loginProtocolPort}}</td></tr>
+    <tr><td>World Type:</td><td>{{info.worldType | uppercase}}</td></tr>
+    <tr><td>Server Owner:</td><td>{{info.ownerName}}</td></tr>
+    <tr><td>Owner Email:</td><td>{{info.ownerEmail}}</td></tr>
+    <tr><td>Server Location:</td><td>{{info.location}}</td></tr>
+</table>
+
+<h2><i class="glyphicon glyphicon-dashboard"></i> Vocation Balance</h2>
+<table class="table table-striped text-center table-complex">
+<thead>
+    <th>Vocation</th>
+    <th colspan="2">Configuration</th>
+</thead>
+<tbody>
+    <tr ng-repeat="vocation in vocations">
+        <td>{{vocation.name}}</td>
+        <td>
+            <table class="table table-bordered table-condensed table-condensed">
+                <thead>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                </thead>
+                <tbody>
+                    <tr><td>Promoted from</td><td>{{(vocations | filter: {id: vocation.fromvoc})[0].name}}</td></tr>
+                    <tr><td>Attack Speed</td><td>{{vocation.attackspeed}}</td></tr>
+                    <tr><td>Base Speed</td><td>{{vocation.basespeed}}</td></tr>
+                    <tr><td>Max Soul</td><td>{{vocation.soulmax}}</td></tr>
+                </tbody>
+            </table>
+            <table class="table table-bordered table-condensed table-condensed">
+                <thead>
+                <th>Type</th>
+                <th>Regeneration Speed</th>
+                </thead>
+                <tbody>
+                <tr><td>HP</td><td>{{vocation.gainhpamount}} HP / {{vocation.gainhpticks}} seconds</td></tr>
+                <tr><td>Mana</td><td>{{vocation.gainmanaamount}} MP / {{vocation.gainmanaticks}} seconds</td></tr>
+                </tbody>
+            </table>
+            <table class="table table-bordered table-condensed table-condensed">
+                <thead>
+                <th>Type</th>
+                <th>Increase per level</th>
+                </thead>
+                <tbody>
+                <tr><td>HP</td><td>{{vocation.gainhp}} / level</td></tr>
+                <tr><td>Mana</td><td>{{vocation.gainmana}} / level</td></tr>
+                <tr><td>Cap</td><td>{{vocation.gaincap}} / level</td></tr>
+                </tbody>
+            </table>
+        </td>
+        <td>
+            <table class="table table-bordered table-condensed table-condensed">
+                <thead>
+                    <th>Attack/Defense</th>
+                    <th>Multiplier in hits/defense</th>
+                </thead>
+                <tbody>
+                    <tr><td>Melee Damage</td><td>{{vocation.formula.meleeDamage}}x</td></tr>
+                    <tr><td>Distance Damage</td><td>{{vocation.formula.distDamage}}x</td></tr>
+                    <tr><td>Defense</td><td>{{vocation.formula.defense}}x</td></tr>
+                    <tr><td>Armor</td><td>{{vocation.formula.armor}}x</td></tr>
+                </tbody>
+            </table>
+            <table class="table table-bordered table-condensed table-responsive">
+                <thead>
+                    <th>Skill</th>
+                    <th>Multiplier in advances</th>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="skill in vocation.skill | filter: {id: 0}"><td>Fist</td><td>{{skill.multiplier}}x</td></tr>
+                    <tr ng-repeat="skill in vocation.skill | filter: {id: 1}"><td>Club</td><td>{{skill.multiplier}}x</td></tr>
+                    <tr ng-repeat="skill in vocation.skill | filter: {id: 2}"><td>Sword</td><td>{{skill.multiplier}}x</td></tr>
+                    <tr ng-repeat="skill in vocation.skill | filter: {id: 3}"><td>Axe</td><td>{{skill.multiplier}}x</td></tr>
+                    <tr ng-repeat="skill in vocation.skill | filter: {id: 4}"><td>Distance</td><td>{{skill.multiplier}}x</td></tr>
+                    <tr ng-repeat="skill in vocation.skill | filter: {id: 5}"><td>Shield</td><td>{{skill.multiplier}}x</td></tr>
+                    <tr ng-repeat="skill in vocation.skill | filter: {id: 6}"><td>Fishing</td><td>{{skill.multiplier}}x</td></tr>
+                    <tr><td>Magic</td><td>{{vocation.manamultiplier}}x</td></tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+</tbody>
+</table>

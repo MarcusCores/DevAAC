@@ -1,0 +1,92 @@
+<div class="col-lg-12">
+    <h1>{{player.name}} <span ng-show="player.is_online" class="label label-success">Online</span></h1>
+    <table class="table table-striped table-condensed table-content">
+        <tbody>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Name:</td>
+            <td>{{player.name}}</td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Sex:</td>
+            <td>{{player.sex}}</td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Profession:</td>
+            <td>{{player.profession.name}}</td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Level:</td>
+            <td>{{player.level}}</td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Residence:</td>
+            <td>{{player.residence}}</td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Bank balance:</td>
+            <td>{{player.balance | number}}</td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Last Seen:</td>
+            <td>{{player.seen}}</td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Total Online Time:</td>
+            <td>{{player.onlineTime}}</td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Account Status:</td>
+            <td>{{account.status}}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h1>Latest Deaths</h1>
+    <table ng-show="deaths.length" class="table table-striped table-condensed table-content">
+        <thead>
+            <th>Date</th>
+            <th>Description</th>
+        </thead>
+        <tbody>
+        <tr ng-repeat="death in deaths | reverse">
+            <td>{{death.time | moment:'LLL'}}</td>
+            <td>
+                <span ng-show="death.unjustified">Unjustly k</span><span ng-hide="death.unjustified">K</span>illed at level {{death.level}} by
+                <a ng-show="death.is_player" href ng-href="/players/{{death.killed_by}}">{{death.killed_by}}</a><span ng-hide="death.is_player">{{death.killed_by}}</span>
+                <span ng-show="death.mostdamage_by != death.killed_by">
+                    (most damage by <a ng-show="death.mostdamage_is_player" href ng-href="/players/{{death.mostsdamage_by}}">{{death.mostdamage_by}}</a><span ng-hide="death.mostdamage_is_player">{{death.mostdamage_by}}</span>)
+                </span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div ng-hide="deaths.length">{{player.name}} has not died recently!</div>
+
+    <h1>Account Information</h1>
+    <table class="table table-striped table-condensed table-content">
+        <tbody>
+        <tr ng-if="account && account.type > 1">
+            <td style="width: 25%; vertical-align: top">Position:</td>
+            <td>{{account.position}}</td>
+        </tr>
+        <tr>
+            <td style="width: 25%; vertical-align: top">Created:</td>
+            <td>{{account.creation}}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h1>All Players on this Account</h1>
+    <table class="table table-striped table-condensed table-content">
+        <thead>
+            <th>Name</th>
+            <th>Level</th>
+        </thead>
+        <tbody>
+        <tr ng-repeat="player in players">
+            <td><a href ng-href="/players/{{ player.name }}">{{ player.name }}</a></td>
+            <td>{{player.level}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>

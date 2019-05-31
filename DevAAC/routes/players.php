@@ -1,0 +1,548 @@
+<?php
+/**
+ * DevAAC
+ *
+ * Automatic Account Creator by developers.pl for TFS 1.0
+ *
+ *
+ * LICENSE: Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is furnished
+ * to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @package    DevAAC
+ * @author     Daniel Speichert <daniel@speichert.pl>
+ * @author     Wojciech Guziak <wojciech@guziak.net>
+ * @copyright  2014 Developers.pl
+ * @license    http://opensource.org/licenses/MIT MIT
+ * @version    master
+ * @link       https://github.com/TheDevOne/DevAAC
+ */
+
+use DevAAC\Models\Player;
+use DevAAC\Models\PlayerOnline;
+use Illuminate\Database\Capsule\Manager as Capsule;
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players/online",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Get online players",
+ *      notes="Non-admins get only public fields",
+ *      method="GET",
+ *      type="array[Player]",
+ *      nickname="getOnlinePlayers",
+ *      @SWG\Parameter( name="embed",
+ *                      description="Pass player to embed player object instead of showing just ID",
+ *                      paramType="query",
+ *                      required=false,
+ *                      type="string list separated by comma")
+ *     )
+ *  )
+ * )
+ */
+$DevAAC->get(ROUTES_API_PREFIX.'/players/online', function() use($DevAAC) {
+    $req = $DevAAC->request;
+
+    if($req->get('embed') == 'player')
+        $players = Player::has('online')->get();
+    else
+        $players = PlayerOnline::all();
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody($players->toJson(JSON_PRETTY_PRINT));
+});
+
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players/{id/name}",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Get player based on ID or name",
+ *      method="GET",
+ *      type="Player",
+ *      nickname="getPlayerByID",
+ *      @SWG\Parameter( name="id/name",
+ *                      description="ID or name of Player that needs to be fetched",
+ *                      paramType="path",
+ *                      required=true,
+ *                      type="integer/string"),
+ *      @SWG\ResponseMessage(code=404, message="Player not found")
+ *    )
+ *  )
+ * )
+ */
+$DevAAC->get(ROUTES_API_PREFIX.'/players/:id', function($id) use($DevAAC) {
+    try {
+        $player = Player::findOrFail($id);
+    } catch(Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        $player = Player::where('name', $id)->first();
+        if(!$player)
+            throw $e;
+    }
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody($player->toJson(JSON_PRETTY_PRINT));
+});
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players/{id/name}/spells",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Get player's spells based on ID or name",
+ *      method="GET",
+ *      type="PlayerSpell",
+ *      nickname="getPlayerSpellsByID",
+ *      @SWG\Parameter( name="id/name",
+ *                      description="ID or name of Player whose spells need to be fetched",
+ *                      paramType="path",
+ *                      required=true,
+ *                      type="integer/string"),
+ *      @SWG\ResponseMessage(code=404, message="Player not found")
+ *    )
+ *  )
+ * )
+ */
+$DevAAC->get(ROUTES_API_PREFIX.'/players/:id/spells', function($id) use($DevAAC) {
+    try {
+        $player = Player::findOrFail($id);
+    } catch(Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        $player = Player::where('name', $id)->first();
+        if(!$player)
+            throw $e;
+    }
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody($player->spells->toJson(JSON_PRETTY_PRINT));
+});
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players/{id/name}/deaths",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Get player's deaths based on ID or name",
+ *      method="GET",
+ *      type="PlayerDeath",
+ *      nickname="getPlayerDeathsByID",
+ *      @SWG\Parameter( name="id/name",
+ *                      description="ID or name of Player whose deaths need to be fetched",
+ *                      paramType="path",
+ *                      required=true,
+ *                      type="integer/string"),
+ *      @SWG\ResponseMessage(code=404, message="Player not found")
+ *    )
+ *  )
+ * )
+ */
+$DevAAC->get(ROUTES_API_PREFIX.'/players/:id/deaths', function($id) use($DevAAC) {
+    try {
+        $player = Player::findOrFail($id);
+    } catch(Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        $player = Player::where('name', $id)->first();
+        if(!$player)
+            throw $e;
+    }
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody($player->deaths->toJson(JSON_PRETTY_PRINT));
+});
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players/{id/name}/namelock",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Get player's namelock by ID or name",
+ *      method="GET",
+ *      type="PlayerNamelock",
+ *      nickname="getPlayerNamelockByID",
+ *      @SWG\Parameter( name="id/name",
+ *                      description="ID or name of Player whose namelock needs to be fetched",
+ *                      paramType="path",
+ *                      required=true,
+ *                      type="integer/string"),
+ *      @SWG\ResponseMessage(code=404, message="Player not found")
+ *    )
+ *  )
+ * )
+ */
+$DevAAC->get(ROUTES_API_PREFIX.'/players/:id/namelock', function($id) use($DevAAC) {
+    try {
+        $player = Player::findOrFail($id);
+    } catch(Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        $player = Player::where('name', $id)->first();
+        if(!$player)
+            throw $e;
+    }
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody($player->namelock->toJson(JSON_PRETTY_PRINT));
+});
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players/{id}/namelock",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Delete player's namelock by ID",
+ *      notes="GameMaster or higher only",
+ *      method="DELETE",
+ *      type="null",
+ *      nickname="deletePlayerByID",
+ *      @SWG\Parameter( name="id",
+ *                      description="ID of Player that needs to have namelock deleted",
+ *                      paramType="path",
+ *                      required=true,
+ *                      type="integer"),
+ *      @SWG\ResponseMessage(code=401, message="Authentication required"),
+ *      @SWG\ResponseMessage(code=404, message="Player not found"),
+ *      @SWG\ResponseMessage(code=403, message="Permission denied"),
+ *      @SWG\ResponseMessage(code=412, message="No namelock on the player")
+ *   )
+ *  )
+ * )
+ */
+$DevAAC->delete(ROUTES_API_PREFIX.'/players/:id/namelock', function($id) use($DevAAC) {
+    $player = Player::findOrFail($id);
+
+    if(! $DevAAC->auth_account )
+        throw new InputErrorException('You are not logged in.', 401);
+
+    if($player->account->id != $DevAAC->auth_account->id && !$DevAAC->auth_account->isGameMaster())
+        throw new InputErrorException("You do not have permission to delete this player's namelock.", 403);
+
+    $namelock = $player->namelock;
+    if(!$namelock)
+        throw new InputErrorException('There is no namelock on this player.', 412);
+
+    $namelock->delete();
+
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody(json_encode(null, JSON_PRETTY_PRINT));
+});
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players/{id/name}/namelock/resolve",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Resolve player's namelock by ID or name",
+ *      notes="Only authenticated account - owner of the player or God",
+ *      method="POST",
+ *      type="null",
+ *      nickname="resolvePlayerNamelockByID",
+ *      @SWG\Parameter( name="id/name",
+ *                      description="ID or name of Player whose namelock needs to be resolved",
+ *                      paramType="path",
+ *                      required=true,
+ *                      type="integer/string"),
+ *      @SWG\Parameter( name="name",
+ *                      description="New name to change player's name to",
+ *                      paramType="body",
+ *                      required=true,
+ *                      type="string"),
+ *      @SWG\ResponseMessage(code=400, message="Input parameter error"),
+ *      @SWG\ResponseMessage(code=403, message="Permission denied"),
+ *      @SWG\ResponseMessage(code=404, message="Player not found"),
+ *      @SWG\ResponseMessage(code=412, message="No namelock on the player")
+ *    )
+ *  )
+ * )
+ */
+$DevAAC->post(ROUTES_API_PREFIX.'/players/:id/namelock/resolve', function($id) use($DevAAC) {
+    $req = $DevAAC->request;
+
+    if(! $DevAAC->auth_account )
+        throw new InputErrorException('You are not logged in.', 401);
+
+    try {
+        $player = Player::findOrFail($id);
+    } catch(Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        $player = Player::where('name', $id)->first();
+        if(!$player)
+            throw $e;
+    }
+
+    if($player->account->id != $DevAAC->auth_account->id && !$DevAAC->auth_account->isGod())
+        throw new InputErrorException("You do not have permission to resolve this player's namelock.", 403);
+
+    $namelock = $player->namelock;
+    if(!$namelock)
+        throw new InputErrorException('There is no namelock on this player.', 412);
+
+    if( !filter_var($req->getAPIParam('name'), FILTER_VALIDATE_REGEXP,
+        array('options' => array('regexp' => '/^[a-zA-Z ]{5,20}$/'))) )
+        throw new InputErrorException('Player name must have 5-20 characters, only letters and space.', 400);
+
+    $player->name = ucwords(strtolower($req->getAPIParam('name')));
+    $player->save();
+    $namelock->delete();
+
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody(json_encode(null, JSON_PRETTY_PRINT));
+});
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Get all players",
+ *      notes="Non-admins get only public fields",
+ *      method="GET",
+ *      type="array[Player]",
+ *      nickname="getPlayers",
+ *      @SWG\Parameter( name="q",
+ *                      description="Part of the name of players to search for",
+ *                      paramType="query",
+ *                      required=false,
+ *                      type="string"),
+ *      @SWG\Parameter( name="account_id",
+ *                      description="Account id of players to search for",
+ *                      paramType="query",
+ *                      required=false,
+ *                      type="integer"),
+ *      @SWG\Parameter( name="sort",
+ *                      description="The field or fields (separated by comma) to sort by ascending, specify -field to sort descending, e.g.: ?sort=level,-skill_fist",
+ *                      paramType="query",
+ *                      required=false,
+ *                      type="string"),
+ *      @SWG\Parameter( name="fields",
+ *                      description="The field to return (Non-admin: only public fields)",
+ *                      paramType="query",
+ *                      required=false,
+ *                      type="string"),
+ *      @SWG\Parameter( name="offset",
+ *                      description="The number of records to skip",
+ *                      paramType="query",
+ *                      required=false,
+ *                      type="string"),
+ *      @SWG\Parameter( name="limit",
+ *                      description="The number of records to return at maximum (Non-admin: max 100)",
+ *                      paramType="query",
+ *                      required=false,
+ *                      type="string")
+ *    )
+ *  )
+ * )
+ */
+$DevAAC->get(ROUTES_API_PREFIX.'/players', function() use($DevAAC) {
+    $req = $DevAAC->request;
+    $players = Capsule::table('players');
+
+    // for field validation - it's not the best way ;/
+    $tmp = new Player();
+    $visible = $tmp->getVisibleFields();
+
+    // support ?q=partialname
+    if($req->get('q'))
+    {
+        $players->where('name', 'LIKE', '%'.$req->get('q').'%');
+    }
+
+    if($req->get('account_id'))
+    {
+        $players->where('account_id', $req->get('account_id'));
+    }
+
+    // support ?sort=level,-skill_club
+    if($req->get('sort'))
+    {
+        $sort_rules = explode(',', $req->get('sort'));
+        foreach($sort_rules as $rule)
+        {
+            if(0 === strpos($rule, '-')) {
+                $rule = trim($rule, '-');
+                $players->orderBy($rule, 'desc');
+            }
+            else
+                $players->orderBy($rule, 'asc');
+
+            // check if has permission to sort by this field
+            if(!in_array($rule, $visible) && ( !$DevAAC->auth_account || !$DevAAC->auth_account->isGod() ) )
+                throw new InputErrorException('You cannot sort by '.$rule, 400);
+        }
+    }
+
+    // support ?fields=id,name,level
+    if($req->get('fields'))
+    {
+        $fields = explode(',', $req->get('fields'));
+        foreach($fields as $field)
+        {
+            // check if has permission to select this field
+            if(!in_array($field, $visible) && ( !$DevAAC->auth_account || !$DevAAC->auth_account->isGod() ) )
+                throw new InputErrorException('You cannot select '.$field, 400);
+        }
+        $players->select($fields);
+    }
+    else
+        $players->select($visible);
+
+    if(intval($req->get('offset')))
+        $players->skip($req->get('offset'));
+
+    $limit = intval($req->get('limit'));
+    if($limit && ($limit <= 100 || ($DevAAC->auth_account && $DevAAC->auth_account->isGod()) ))
+        $players->take($limit);
+    else
+        $players->take(100);
+
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody(json_encode($players->get(), JSON_PRETTY_PRINT));
+});
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players/{id}",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Delete player by ID",
+ *      notes="Owner and admin only",
+ *      method="DELETE",
+ *      type="Player",
+ *      nickname="deletePlayerByID",
+ *      @SWG\Parameter( name="id",
+ *                      description="ID of Player that needs to be deleted",
+ *                      paramType="path",
+ *                      required=true,
+ *                      type="integer"),
+ *      @SWG\ResponseMessage(code=401, message="Authentication required"),
+ *      @SWG\ResponseMessage(code=404, message="Player not found"),
+ *      @SWG\ResponseMessage(code=403, message="Permission denied")
+ *   )
+ *  )
+ * )
+ */
+$DevAAC->delete(ROUTES_API_PREFIX.'/players/:id', function($id) use($DevAAC) {
+    $player = Player::findOrFail($id);
+
+    if( ! $DevAAC->auth_account )
+        throw new InputErrorException('You are not logged in.', 401);
+
+    if($player->account->id != $DevAAC->auth_account->id && !$DevAAC->auth_account->isGod())
+        throw new InputErrorException('You do not have permission to delete this player.', 403);
+
+    $player->delete();
+
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody(json_encode(null, JSON_PRETTY_PRINT));
+});
+
+/**
+ * @SWG\Resource(
+ *  basePath="/api/v1",
+ *  resourcePath="/players",
+ *  @SWG\Api(
+ *    path="/players",
+ *    description="Operations on players",
+ *    @SWG\Operation(
+ *      summary="Create new player",
+ *      notes="You can also pass player object's attributes as form input, do not specify fields marked as optional",
+ *      method="POST",
+ *      type="Player",
+ *      nickname="createPlayer",
+ *      @SWG\Parameter( name="player",
+ *                      description="Player object",
+ *                      paramType="body",
+ *                      required=true,
+ *                      type="Player"),
+ *      @SWG\ResponseMessage(code=400, message="Input parameter error"),
+ *      @SWG\ResponseMessage(code=401, message="Authentication required")
+ *   )
+ *  )
+ * )
+ */
+$DevAAC->post(ROUTES_API_PREFIX.'/players', function() use($DevAAC) {
+    if( ! $DevAAC->auth_account )
+        throw new InputErrorException('You are not logged in.', 401);
+
+    $req = $DevAAC->request;
+
+    if( !filter_var($req->getAPIParam('name'), FILTER_VALIDATE_REGEXP,
+        array("options" => array("regexp" => "/^[a-zA-Z ]{5,20}$/"))) )
+        throw new InputErrorException('Player name must have 5-20 characters, only letters and space.', 400);
+
+    if (filter_var($req->getAPIParam('name'), FILTER_VALIDATE_REGEXP,
+          array('options' => array('regexp' => '/\b(Tutor|GM|God|CM|Admin)\b/i')))
+          && !$DevAAC->auth_account->isGameMaster())
+        throw new InputErrorException('Player name must not include GM/CM/God/Admin words.', 400);
+
+    if( !in_array($req->getAPIParam('vocation'), unserialize(ALLOWED_VOCATIONS)) )
+        throw new InputErrorException('Vocation is out of bounds.', 400);
+
+    if( !in_array($req->getAPIParam('sex'), array(0, 1)) )
+        throw new InputErrorException('Sex is invalid.', 400);
+
+    $player = Player::where('name', $req->getAPIParam('name'))->first();
+    if($player)
+        throw new InputErrorException('Player with this name already exists.', 400);
+
+    $forbiddenPlayerNames = [];
+
+    if (file_exists(TFS_ROOT . '/data/monster/monsters.xml')) {
+        $xml = simplexml_load_file(TFS_ROOT . '/data/monster/monsters.xml');
+        if (property_exists($xml, 'monster'))
+            $forbiddenPlayerNames = array_map('strtolower', array_column(xml2array($xml)['monster'], 'name'));
+    }
+    
+    foreach (glob(TFS_ROOT . '/data/npc/*.xml') as $npcFile) {
+        $xml = simplexml_load_file($npcFile);
+        if (property_exists($xml->attributes(), 'name'))
+            array_push($forbiddenPlayerNames, strtolower(xml2array($xml->attributes()->name)[0]));
+    }
+
+    if( in_array(strtolower($req->getAPIParam('name')), $forbiddenPlayerNames) )
+        throw new InputErrorException('This player name is forbidden.', 400);
+
+    $player = new Player(
+        array(
+            'name' => ucwords(strtolower($req->getAPIParam('name'))),
+            'vocation' => $req->getAPIParam('vocation'),
+            'sex' => $req->getAPIParam('sex'),
+            'level' => NEW_PLAYER_LEVEL,
+            'looktype' => $req->getAPIParam('sex') ? 128 : 136
+        )
+    );
+
+    $DevAAC->auth_account->players()->save($player);
+
+    $DevAAC->response->headers->set('Content-Type', 'application/json');
+    $DevAAC->response->setBody($player->toJson(JSON_PRETTY_PRINT));
+});

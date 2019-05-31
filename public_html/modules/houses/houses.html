@@ -1,0 +1,57 @@
+<div>
+    <h1 class="page-header">Houses <small>there are {{ houses.length }} on this server</small></h1>
+
+    <div>
+        Sort by
+        <label class="radio-inline">
+            <input ng-model="order" type="radio" name="sort" value="name"> Name
+        </label>
+        <label class="radio-inline">
+            <input ng-model="order" type="radio" name="sort" value="town"> Town
+        </label>
+        <label class="radio-inline">
+            <input ng-model="order" type="radio" name="sort" value="size"> Size
+        </label>
+        <label class="radio-inline">
+            <input ng-model="order" type="radio" name="sort" value="rent"> {{ info.houseRentPeriod == 'never' ? 'Price' : 'Rent' }}
+        </label>
+        <label class="checkbox-inline">
+            <input ng-model="orderReverse" type="checkbox"> Reverse order
+        </label>
+    </div>
+
+    <table class="table table-striped" ng-show="houses.length && loaded">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Town</th>
+                <th>Size</th>
+                <th ng-if="info.houseRentPeriod != 'never'">{{info.houseRentPeriod | capitalize}} rent</th>
+                <th ng-if="info.houseRentPeriod == 'never'">Price</th>
+                <th>Owner</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="house in houses | orderBy: order : orderReverse" ng-class="{success: !house.owner && !house.highest_bidder, warning: !house.owner && house.highest_bidder }">
+                <td><a href ng-href="/houses/{{house.id}}">{{ house.name }}</a></td>
+                <td>{{ house.town_name || house.town_id }}</td>
+                <td>{{ house.size }}</td>
+                <td>{{ house.rent | number }} gp</td>
+                <td>
+                    <span ng-if="house.owner"><a href ng-href="/players/{{ player(house.owner).name }}">{{ player(house.owner).name }}</a> <span ng-if="player(house.owner)">({{player(house.owner).level}})</span></span>
+                    <span ng-if="!house.owner && info.houses_auctions && !house.highest_bidder"><a class="btn btn-xs btn-success" href ng-href="/houses/{{house.id}}">No Owner - Start bidding</a></span>
+                    <span ng-if="!house.owner && info.houses_auctions && house.highest_bidder"><a class="btn btn-xs btn-warning" href ng-href="/houses/{{house.id}}">Auction ends {{ fromNow(house.bid_end) }}!</a></span>
+                    <span ng-if="!house.owner && !info.houses_auctions"><a class="btn btn-xs btn-success" href ng-href="/houses/{{house.id}}">!buyhouse in game to buy</a></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p ng-show="!houses.length && loaded">
+        There are no houses on this server :(
+    </p>
+
+    <p ng-hide="loaded">
+        Loading...
+    </p>
+</div>

@@ -1,0 +1,19 @@
+<p ng-if="errorMessage" class="bg-danger">{{errorMessage}}</p>
+
+<blockquote ng-if="info.motd">
+    <p ng-bind-html="info.motd | htmlstring"></p>
+</blockquote>
+
+<span class="pull-right">
+    <span class="glyphicon glyphicon-time"></span> {{news.date}}
+</span>
+<h1 class="page-header">{{news.title}}</h1>
+
+<div ng-bind-html="news.content | markdown"></div>
+<hr>
+
+<!-- pager -->
+<ul class="pager">
+    <li ng-show="previousAvailable()" class="previous"><a href="" ng-click="previous()">&larr; Previous</a></li>
+    <li ng-show="nextAvailable()" class="next"><a href="" ng-click="next()">Next &rarr;</a></li>
+</ul>

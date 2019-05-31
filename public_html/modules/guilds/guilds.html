@@ -1,0 +1,32 @@
+<div>
+    <h1 class="page-header">Guilds <small>there are {{ guilds.length }} on this server</small></h1>
+
+    <table class="table table-striped" ng-show="guilds.length && loaded">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Leader</th>
+                <th>Online</th>
+                <th>Average Level</th>
+                <th>Founded</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="guild in guilds | orderBy: ['online_members', 'average_level'] : true">
+                <td><a href ng-href="/guilds/{{ guild.name }}">{{ guild.name }}</a></td>
+                <td><a href ng-href="/players/{{ guild.owner.name }}">{{ guild.owner.name }}</a> ({{ guild.owner.level}}) <span ng-show="guild.owner.is_online" class="label label-success">Online</span></td>
+                <td>{{ guild.online_members }} / {{ guild.members_count }}</td>
+                <td>{{ guild.average_level }}</td>
+                <td>{{ guild.creationdata | date: fullDate }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p ng-show="!guilds.length && loaded">
+        There are no guilds yet!
+    </p>
+
+    <p ng-hide="loaded">
+        Loading...
+    </p>
+</div>
